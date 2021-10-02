@@ -1,22 +1,43 @@
-FROM python:3.9-alpine
+FROM python:3.9-alpine as builder
 
 WORKDIR /usr/src/app
-COPY requirements.txt kasa-exporter.py ./
+
+RUN set -eux; \
+    pip install --no-cache-dir --quiet --progress-bar off build
+
+COPY setup.cfg pyproject.toml build.sh ./
+COPY kasa_exporter ./kasa_exporter/
+RUN set -eux; \
+    chmod +x build.sh; \
+    ./build.sh
+
+FROM python:3.9-alpine as application
+
+RUN set -eux; \
+    addgroup -S uwsgi; \
+    adduser -S -s /sbin/nologin -G uwsgi -H uwsgi
 
 RUN set -eux; \
     apk add --no-cache \
-        pcre \
+      bash \
+      iputils \
+      pcre \
+      su-exec \
     ; \
     apk add --no-cache --virtual .build-deps \
-        build-base \
-        linux-headers \
-        pcre-dev \
+      build-base \
+      linux-headers \
+      pcre-dev \
     ; \
-    pip install -q --no-cache-dir --progress-bar off \
-        -r requirements.txt \
-        uwsgi \
-    ; \
+    pip install --quiet --no-cache-dir --progress-bar off uwsgi; \
     apk del .build-deps
 
-EXPOSE 9907
-ENTRYPOINT ["uwsgi", "--http", "0.0.0.0:9907", "--wsgi-file", "kasa-exporter.py", "--callable", "app"]
+COPY --from=builder /usr/src/app/dist/*.whl /tmp/
+RUN set -eux; \
+    pip install --quiet --no-cache-dir --progress-bar off /tmp/*.whl
+
+COPY entrypoint.sh /usr/local/bin
+COPY uwsgi.ini /usr/local/etc
+EXPOSE 9191 9907
+CMD ["/usr/local/etc/uwsgi.ini"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

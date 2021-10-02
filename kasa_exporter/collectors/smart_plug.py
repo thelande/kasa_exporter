@@ -1,18 +1,12 @@
-#!/usr/bin/env python3
-# Copyright 2021 Thomas Helander
-# All rights reserved.
 import asyncio
-from flask import Flask
+import kasa.exceptions
 from kasa import SmartPlug
-from prometheus_client import make_wsgi_app, REGISTRY
 from prometheus_client.core import GaugeMetricFamily
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
-
-DEVICE_ADDRESS = "192.168.86.45"
-METRICS_PATH = "/metrics"
+from typing import List
 
 
 class KasaSmartPlugCollector:
+    """Prometheus collector for Kasa Smart Plugs with energy monitoring."""
     def __init__(self, address, registry=None):
         self.device = SmartPlug(address)
 
@@ -40,8 +34,17 @@ class KasaSmartPlugCollector:
 
         return self.device.emeter_realtime.get("power_mw")
 
-    def collect(self):
-        asyncio.run(self.device.update())
+    def collect(self) -> List[GaugeMetricFamily]:
+        try:
+            evtloop = asyncio.get_running_loop()
+        except RuntimeError:
+            evtloop = asyncio.new_event_loop()
+
+        try:
+            evtloop.run_until_complete(self.device.update())
+        except kasa.exceptions.SmartDeviceException:
+            print("Failed to update device")
+            return []
 
         current = GaugeMetricFamily(
             "kasa_device_current",
@@ -67,21 +70,3 @@ class KasaSmartPlugCollector:
         power.add_metric([self.device.alias], self.get_device_power())
 
         return [current, voltage, power]
-
-
-app = Flask(__name__)
-KasaSmartPlugCollector(DEVICE_ADDRESS, REGISTRY)
-
-
-@app.route("/")
-def index():
-    return f"""<html>
-    <head><title>Kasa Smart Plug Exporter</title></head>
-    <body>
-        <h1>Kasa Smart Plug Exporter</h1>
-        <p><a href="{METRICS_PATH}">Metrics</a></p>
-    </body>
-</html>"""
-
-
-app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {METRICS_PATH: make_wsgi_app()})
