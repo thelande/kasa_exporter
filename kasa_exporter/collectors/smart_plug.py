@@ -16,21 +16,21 @@ class KasaSmartPlugCollector:
     def get_device_current(self) -> float:
         """Returns the current pulled by the device in mA."""
         if not self.device.has_emeter:
-            return None
+            return 0.0
 
         return self.device.emeter_realtime.get("current_ma")
 
     def get_device_voltage(self) -> float:
         """Returns the input voltage of the device in mV."""
         if not self.device.has_emeter:
-            return None
+            return 0.0
 
         return self.device.emeter_realtime.get("voltage_mv")
 
     def get_device_power(self) -> float:
         """Returns the power consumption of the device in mW."""
         if not self.device.has_emeter:
-            return None
+            return 0.0
 
         return self.device.emeter_realtime.get("power_mw")
 
