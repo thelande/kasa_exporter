@@ -35,9 +35,8 @@ class KasaSmartPlugCollector:
         return self.device.emeter_realtime.get("power_mw")
 
     def collect(self) -> List[GaugeMetricFamily]:
-        try:
-            evtloop = asyncio.get_running_loop()
-        except RuntimeError:
+        evtloop = self.device.protocol.loop
+        if not evtloop:
             evtloop = asyncio.new_event_loop()
 
         try:
