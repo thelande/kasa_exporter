@@ -1,8 +1,10 @@
+# Copyright 2021-2022 Thomas Helander
+# All rights reserved.
 import asyncio
 import kasa.exceptions
 import sys
 from kasa import SmartPlug
-from prometheus_client.core import GaugeMetricFamily
+from prometheus_client.core import GaugeMetricFamily, InfoMetricFamily
 from typing import List
 from kasa_exporter.utils import ping
 
@@ -38,9 +40,16 @@ class KasaSmartPlugCollector:
         return self.device.emeter_realtime.get("power_mw")
 
     def collect(self) -> List[GaugeMetricFamily]:
+        metrics = []
+        up = GaugeMetricFamily("kasa_up", "Is the device up", labels=["device"])
+        metrics.append(up)
+
         if not ping(self.address):
+            up.add_metric([], 0)
             print(f"{self.address} not responding", file=sys.stderr)
-            return []
+            return metrics
+
+        up.add_metric([], 1)
 
         evtloop = self.device.protocol.loop
         if not evtloop:
@@ -50,29 +59,31 @@ class KasaSmartPlugCollector:
             evtloop.run_until_complete(self.device.update())
         except kasa.exceptions.SmartDeviceException:
             print("Failed to update device")
-            return []
+            return metrics
+
+        info = InfoMetricFamily("kasa_info", "Device information")
+        info.add_metric([], {"alias": self.device.alias})
+        metrics.append(info)
 
         current = GaugeMetricFamily(
             "kasa_device_current",
             "Current pulled by the device",
-            labels=["device"],
-            unit="ma",
+            unit="ma"
         )
         voltage = GaugeMetricFamily(
             "kasa_device_voltage",
             "Input voltage of the device",
-            labels=["device"],
-            unit="mv",
+            unit="mv"
         )
         power = GaugeMetricFamily(
             "kasa_device_power_mw",
             "Power consumption of the device",
-            labels=["device"],
-            unit="mw",
+            unit="mw"
         )
 
-        current.add_metric([self.device.alias], self.get_device_current())
-        voltage.add_metric([self.device.alias], self.get_device_voltage())
-        power.add_metric([self.device.alias], self.get_device_power())
+        current.add_metric([], self.get_device_current())
+        voltage.add_metric([], self.get_device_voltage())
+        power.add_metric([], self.get_device_power())
+        metrics.extend([current, voltage, power])
 
-        return [current, voltage, power]
+        return metrics

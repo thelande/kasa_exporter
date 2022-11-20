@@ -1,11 +1,9 @@
-# Copyright 2021 Thomas Helander
+# Copyright 2021-2022 Thomas Helander
 # All rights reserved.
-from flask import Flask
-from prometheus_client import make_wsgi_app, REGISTRY
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from flask import Flask, request, Response
+from prometheus_client import generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 from .collectors import KasaSmartPlugCollector
 
-DEVICE_ADDRESS = "192.168.86.45"
 METRICS_PATH = "/metrics"
 
 app = Flask(__name__)
@@ -17,13 +15,25 @@ def index():
     <head><title>Kasa Smart Plug Exporter</title></head>
     <body>
         <h1>Kasa Smart Plug Exporter</h1>
-        <p><a href="{METRICS_PATH}">Metrics</a></p>
+        <form method="get" action="/metrics">
+        <label for="target">Target</label>
+        <input type="text" name="target" id="target" placeholder="1.2.3.4"/>
+        <button type="submit">Get</button>
+        </form>
+        <!--<p><a href="{METRICS_PATH}">Metrics</a></p>-->
     </body>
 </html>"""
 
 
-KasaSmartPlugCollector(DEVICE_ADDRESS, REGISTRY)
-app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {METRICS_PATH: make_wsgi_app()})
+@app.route("/metrics")
+def metrics():
+    target = request.args.get("target")
+    if not target:
+        return "Required parameter missing: target", 400
+
+    registry = CollectorRegistry()
+    KasaSmartPlugCollector(target, registry)
+    return Response(generate_latest(registry), mimetype=CONTENT_TYPE_LATEST)
 
 
 def get_application():
