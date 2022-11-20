@@ -62,7 +62,7 @@ class KasaSmartPlugCollector:
             print("Failed to update device")
             return metrics
 
-        info = InfoMetricFamily("kasa_info", "Device information")
+        info = InfoMetricFamily("kasa_meta", "Device information")
         info.add_metric([], {"alias": self.device.alias})
         metrics.append(info)
 
