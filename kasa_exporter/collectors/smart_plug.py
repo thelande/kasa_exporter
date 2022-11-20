@@ -11,6 +11,7 @@ from kasa_exporter.utils import ping
 
 class KasaSmartPlugCollector:
     """Prometheus collector for Kasa Smart Plugs with energy monitoring."""
+
     def __init__(self, address, registry=None):
         self.address = address
         self.device = SmartPlug(address)
@@ -66,19 +67,13 @@ class KasaSmartPlugCollector:
         metrics.append(info)
 
         current = GaugeMetricFamily(
-            "kasa_device_current",
-            "Current pulled by the device",
-            unit="ma"
+            "kasa_device_current", "Current pulled by the device", unit="ma"
         )
         voltage = GaugeMetricFamily(
-            "kasa_device_voltage",
-            "Input voltage of the device",
-            unit="mv"
+            "kasa_device_voltage", "Input voltage of the device", unit="mv"
         )
         power = GaugeMetricFamily(
-            "kasa_device_power_mw",
-            "Power consumption of the device",
-            unit="mw"
+            "kasa_device_power_mw", "Power consumption of the device", unit="mw"
         )
 
         current.add_metric([], self.get_device_current())
