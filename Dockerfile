@@ -1,4 +1,4 @@
-FROM python:3.9-alpine as builder
+FROM python:3.10-alpine as builder
 
 WORKDIR /usr/src/app
 
@@ -11,7 +11,7 @@ RUN set -eux; \
     chmod +x build.sh; \
     ./build.sh
 
-FROM python:3.9-alpine as application
+FROM python:3.10-alpine as application
 
 RUN set -eux; \
     addgroup -S uwsgi; \
