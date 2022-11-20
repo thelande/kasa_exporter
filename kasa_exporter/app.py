@@ -1,9 +1,7 @@
 # Copyright 2021 Thomas Helander
 # All rights reserved.
-import sys
 from flask import Flask
 from prometheus_client import make_wsgi_app, REGISTRY
-from subprocess import check_output, CalledProcessError
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from .collectors import KasaSmartPlugCollector
 
@@ -24,14 +22,7 @@ def index():
 </html>"""
 
 
-# Verify the device is reachable
-try:
-    check_output(["ping", "-c", "1", "-W", "5", DEVICE_ADDRESS])
-except CalledProcessError:
-    sys.exit(f"Failed to ping {DEVICE_ADDRESS}.")
-
 KasaSmartPlugCollector(DEVICE_ADDRESS, REGISTRY)
-
 app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {METRICS_PATH: make_wsgi_app()})
 
 

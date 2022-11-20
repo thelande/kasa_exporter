@@ -1,13 +1,16 @@
 import asyncio
 import kasa.exceptions
+import sys
 from kasa import SmartPlug
 from prometheus_client.core import GaugeMetricFamily
 from typing import List
+from kasa_exporter.utils import ping
 
 
 class KasaSmartPlugCollector:
     """Prometheus collector for Kasa Smart Plugs with energy monitoring."""
     def __init__(self, address, registry=None):
+        self.address = address
         self.device = SmartPlug(address)
 
         if registry:
@@ -35,6 +38,10 @@ class KasaSmartPlugCollector:
         return self.device.emeter_realtime.get("power_mw")
 
     def collect(self) -> List[GaugeMetricFamily]:
+        if not ping(self.address):
+            print(f"{self.address} not responding", file=sys.stderr)
+            return []
+
         evtloop = self.device.protocol.loop
         if not evtloop:
             evtloop = asyncio.new_event_loop()
