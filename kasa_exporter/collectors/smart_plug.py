@@ -45,13 +45,6 @@ class KasaSmartPlugCollector:
         up = GaugeMetricFamily("kasa_up", "Is the device up", labels=["device"])
         metrics.append(up)
 
-        if not ping(self.address):
-            up.add_metric([], 0)
-            print(f"{self.address} not responding", file=sys.stderr)
-            return metrics
-
-        up.add_metric([], 1)
-
         evtloop = self.device.protocol.loop
         if not evtloop:
             evtloop = asyncio.new_event_loop()
@@ -59,8 +52,11 @@ class KasaSmartPlugCollector:
         try:
             evtloop.run_until_complete(self.device.update())
         except kasa.exceptions.SmartDeviceException:
+            up.add_metric([], 0)
             print("Failed to update device")
             return metrics
+
+        up.add_metric([], 1)
 
         info = InfoMetricFamily("kasa_meta", "Device information")
         info.add_metric([], {"alias": self.device.alias})
