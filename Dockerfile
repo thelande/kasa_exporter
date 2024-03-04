@@ -14,6 +14,11 @@ RUN set -eux; \
 FROM python:3.10-alpine as application
 
 RUN set -eux; \
+    apk update; \
+    apk upgrade --no-cache -v; \
+    apk cache purge
+
+RUN set -eux; \
     addgroup -S uwsgi; \
     adduser -S -s /sbin/nologin -G uwsgi -H uwsgi
 
