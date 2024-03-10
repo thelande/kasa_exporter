@@ -1,5 +1,5 @@
 IMAGE_NAME ?= kasa-exporter
-IMAGE_TAG ?= v0.1.0
+IMAGE_TAG ?= v0.2.0
 
 .DEFAULT_GOAL := help
 

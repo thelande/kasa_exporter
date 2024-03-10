@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kasa-exporter"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Tom Helander <thomas.helander@gmail.com>"]
 packages = [{include = "kasa_exporter"}]
