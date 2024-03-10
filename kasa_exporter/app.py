@@ -1,17 +1,18 @@
-# Copyright 2021-2022 Thomas Helander
+# Copyright 2021-2022,2024 Thomas Helander
 # All rights reserved.
-from flask import Flask, request, Response
+from fastapi import FastAPI, Response
+from fastapi.responses import HTMLResponse
 from prometheus_client import generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 from .collectors import KasaSmartPlugCollector
 
 METRICS_PATH = "/metrics"
 
-app = Flask(__name__)
+app = FastAPI()
 
 
-@app.route("/")
-def index():
-    return f"""<html>
+@app.get("/", response_class=HTMLResponse)
+async def index():
+    return """<html>
     <head><title>Kasa Smart Plug Exporter</title></head>
     <body>
         <h1>Kasa Smart Plug Exporter</h1>
@@ -20,20 +21,15 @@ def index():
         <input type="text" name="target" id="target" placeholder="1.2.3.4"/>
         <button type="submit">Get</button>
         </form>
-        <!--<p><a href="{METRICS_PATH}">Metrics</a></p>-->
     </body>
 </html>"""
 
 
-@app.route("/metrics")
-def metrics():
-    target = request.args.get("target")
-    if not target:
-        return "Required parameter missing: target", 400
-
+@app.get("/metrics")
+def metrics(target: str) -> Response:
     registry = CollectorRegistry()
     KasaSmartPlugCollector(target, registry)
-    return Response(generate_latest(registry), mimetype=CONTENT_TYPE_LATEST)
+    return Response(content=generate_latest(registry), media_type=CONTENT_TYPE_LATEST)
 
 
 def get_application():

@@ -1,3 +1,21 @@
+[tool.poetry]
+name = "kasa-exporter"
+version = "0.1.0"
+description = ""
+authors = ["Tom Helander <thomas.helander@gmail.com>"]
+packages = [{include = "kasa_exporter"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-kasa = {extras = ["speedups"], version = "^0.6.2.1"}
+prometheus-client = "^0.20.0"
+fastapi = "^0.110.0"
+uvicorn = {extras = ["standard"], version = "^0.28.0"}
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.2.0"
+pre-commit = "^3.6.2"
+
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

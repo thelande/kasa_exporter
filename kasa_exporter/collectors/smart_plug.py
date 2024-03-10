@@ -1,15 +1,14 @@
-# Copyright 2021-2022 Thomas Helander
+# Copyright 2021-2022,2024 Thomas Helander
 # All rights reserved.
 import asyncio
 import kasa.exceptions
-import sys
 from kasa import SmartPlug
 from prometheus_client.core import GaugeMetricFamily, InfoMetricFamily
+from prometheus_client.registry import Collector
 from typing import List
-from kasa_exporter.utils import ping
 
 
-class KasaSmartPlugCollector:
+class KasaSmartPlugCollector(Collector):
     """Prometheus collector for Kasa Smart Plugs with energy monitoring."""
 
     def __init__(self, address, registry=None):
@@ -45,15 +44,10 @@ class KasaSmartPlugCollector:
         up = GaugeMetricFamily("kasa_up", "Is the device up", labels=["device"])
         metrics.append(up)
 
-        evtloop = self.device.protocol.loop
-        if not evtloop:
-            evtloop = asyncio.new_event_loop()
-
         try:
-            evtloop.run_until_complete(self.device.update())
+            asyncio.run(self.device.update())
         except kasa.exceptions.SmartDeviceException:
             up.add_metric([], 0)
-            print("Failed to update device")
             return metrics
 
         up.add_metric([], 1)

@@ -1,10 +1,6 @@
 #!/bin/bash
 
-OPTS=()
-if [ -z "$1" ]; then
-  OPTS=("$1")
-else
-  OPTS=(--http :9907 --module kasa_exporter.app:app --uid uwsgi --gid uwsgi)
-fi
+OPTS=(kasa_exporter.app:app --host 0.0.0.0 --port 9907)
 
-uwsgi "${OPTS[@]}"
+set -x
+uvicorn "${OPTS[@]}"
