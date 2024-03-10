@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 RUN set -eux; \
     apk add --no-cache --virtual .build-deps \
       build-base \
+      libffi-dev \
     ; \
     pip install --no-cache-dir --quiet --progress-bar off poetry; \
     apk del .build-deps
