@@ -16,3 +16,22 @@ jobs:
         with:
           python-version: '3.11'
       - uses: pre-commit/action@v3.0.1
+
+  build_container:
+    needs: [pre-commit]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: all
+    - name: Set up Docker Buildx
+      id: builder
+      uses: docker/setup-buildx-action@v3
+    - name: Build the Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        platforms: linux/amd64,linux/arm64,linux/arm
+        tags: thelande/kasa_exporter:${{ github.ref_name }},thelande/kasa_exporter:latest

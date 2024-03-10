@@ -3,7 +3,11 @@ FROM python:3.11-alpine as builder
 WORKDIR /usr/src/app
 
 RUN set -eux; \
-    pip install --no-cache-dir --quiet --progress-bar off poetry
+    apk add --no-cache --virtual .build-deps \
+      build-base \
+    ; \
+    pip install --no-cache-dir --quiet --progress-bar off poetry; \
+    apk del .build-deps
 
 COPY poetry.lock pyproject.toml ./
 COPY kasa_exporter ./kasa_exporter/
@@ -25,13 +29,6 @@ RUN set -eux; \
     apk add --no-cache \
       bash \
       su-exec
-#    apk add --no-cache --virtual .build-deps \
-#      build-base \
-#      linux-headers \
-#      pcre-dev \
-#    ; \
-#    pip install --quiet --no-cache-dir --progress-bar off uwsgi; \
-#    apk del .build-deps
 
 COPY --from=builder /usr/src/app/dist/*.whl /tmp/
 RUN set -eux; \
