@@ -11,9 +11,6 @@ permissions:
   contents: write
   packages: write
 
-env:
-  PROMU_VER: '0.15.0'
-
 jobs:
   build_containers:
     runs-on: ubuntu-latest
