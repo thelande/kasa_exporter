@@ -33,7 +33,13 @@ RUN set -eux; \
 
 COPY --from=builder /usr/src/app/dist/*.whl /tmp/
 RUN set -eux; \
-    pip install --quiet --no-cache-dir --progress-bar off /tmp/*.whl
+    apk add --no-cache libffi; \
+    apk add --no-cache --virtual .build-deps \
+      build-base \
+      libffi-dev \
+    ; \
+    pip install --quiet --no-cache-dir --progress-bar off /tmp/*.whl; \
+    apk del .build-deps
 
 COPY entrypoint.sh /usr/local/bin
 EXPOSE 9907
