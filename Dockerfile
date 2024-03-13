@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 RUN set -eux; \
     apk add --no-cache --virtual .build-deps \
       build-base \
+      cargo \
       libffi-dev \
       rust \
     ; \
@@ -37,6 +38,7 @@ RUN set -eux; \
     apk add --no-cache libffi; \
     apk add --no-cache --virtual .build-deps \
       build-base \
+      cargo \
       libffi-dev \
       rust \
     ; \
