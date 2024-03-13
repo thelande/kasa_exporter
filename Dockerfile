@@ -1,25 +1,45 @@
-FROM python:3.11 as builder
+FROM python:3.11-alpine as builder
 
 WORKDIR /usr/src/app
 
-RUN pip install --no-cache-dir --quiet --progress-bar off poetry
+RUN set -eux; \
+    apk add --no-cache --virtual .build-deps \
+      build-base \
+      libffi-dev \
+    ; \
+    pip install --no-cache-dir --quiet --progress-bar off poetry; \
+    apk del .build-deps
 
 COPY poetry.lock pyproject.toml ./
 COPY kasa_exporter ./kasa_exporter/
 RUN poetry build
 
-FROM python:3.11 as application
+FROM python:3.11-alpine as application
 LABEL maintainer="Tom Helander <thomas.helander@gmail.com>"
 
 RUN set -eux; \
-    apt-get update; \
-    apt-get upgrade -y; \
-    apt-get clean all
+    apk update; \
+    apk upgrade --no-cache -v; \
+    apk cache purge
 
-RUN useradd --system --shell /sbin/nologin --user-group --create-home uvicorn
+RUN set -eux; \
+    addgroup -S uvicorn; \
+    adduser -S -s /sbin/nologin -G uvicorn -H uvicorn
+
+RUN set -eux; \
+    apk add --no-cache \
+      bash \
+      su-exec
 
 COPY --from=builder /usr/src/app/dist/*.whl /tmp/
-RUN pip install --quiet --no-cache-dir --progress-bar off /tmp/*.whl
+RUN set -eux; \
+    apk add --no-cache libffi; \
+    apk add --no-cache --virtual .build-deps \
+      build-base \
+      libffi-dev \
+    ; \
+    pip install --quiet --no-cache-dir --progress-bar off /tmp/*.whl; \
+    apk del .build-deps
 
 COPY entrypoint.sh /usr/local/bin
 EXPOSE 9907
