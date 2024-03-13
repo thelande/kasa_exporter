@@ -6,6 +6,7 @@ RUN set -eux; \
     apk add --no-cache --virtual .build-deps \
       build-base \
       libffi-dev \
+      rust \
     ; \
     pip install --no-cache-dir --quiet --progress-bar off poetry; \
     apk del .build-deps
@@ -37,6 +38,7 @@ RUN set -eux; \
     apk add --no-cache --virtual .build-deps \
       build-base \
       libffi-dev \
+      rust \
     ; \
     pip install --quiet --no-cache-dir --progress-bar off /tmp/*.whl; \
     apk del .build-deps
