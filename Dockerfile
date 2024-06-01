@@ -1,14 +1,20 @@
-FROM python:3.11-alpine as builder
+FROM python:3.12-alpine as builder
 
 WORKDIR /usr/src/app
 
-RUN pip install --no-cache-dir --quiet --progress-bar off poetry
+RUN set -eux; \
+    apk add --no-cache --virtual .build-deps \
+      build-base \
+      libffi-dev \
+    ; \
+    pip install --no-cache-dir --quiet --progress-bar off poetry; \
+    apk del .build-deps
 
 COPY poetry.lock pyproject.toml ./
 COPY kasa_exporter ./kasa_exporter/
 RUN poetry build
 
-FROM python:3.11-alpine as application
+FROM python:3.12-alpine as application
 LABEL maintainer="Tom Helander <thomas.helander@gmail.com>"
 
 RUN set -eux; \
