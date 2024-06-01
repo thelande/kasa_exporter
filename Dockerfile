@@ -31,7 +31,13 @@ RUN apk add --no-cache \
       su-exec
 
 COPY --from=builder /usr/src/app/dist/*.whl /tmp/
-RUN pip install --quiet --no-cache-dir --progress-bar off /tmp/*.whl
+RUN set -eux; \
+    apk add --no-cache --virtual .build-deps \
+      build-base \
+      libffi-dev \
+    ; \
+    pip install --quiet --no-cache-dir --progress-bar off /tmp/*.whl; \
+    apk del .build-deps
 
 COPY entrypoint.sh /usr/local/bin
 EXPOSE 9907
