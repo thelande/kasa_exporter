@@ -10,7 +10,7 @@ python = "^3.11"
 python-kasa = {extras = ["speedups"], version = "^0.6.2.1"}
 prometheus-client = "^0.20.0"
 fastapi = "^0.110.0"
-uvicorn = {extras = ["standard"], version = "^0.28.0"}
+uvicorn = {extras = ["standard"], version = ">=0.28,<0.52"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.2.0"
