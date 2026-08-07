@@ -1,0 +1,10 @@
+[tools]
+pre-commit = "4.6.1"
+python = "3.14.7"
+ruff = "0.16.1"
+
+[tasks]
+lint = "ruff check kasa_exporter"
+fix = "ruff check --fix kasa_exporter"
+fmt = "ruff format kasa_exporter"
+analyze = "ruff analyze graph"
