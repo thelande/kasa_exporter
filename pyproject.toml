@@ -20,3 +20,17 @@ kasa-exporter = "kasa_exporter.app:main"
 [build-system]
 requires = ["uv_build>=0.12.2,<0.13"]
 build-backend = "uv_build"
+
+[tool.bumpversion]
+current_version = "0.2.2"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "{current_version}"
+replace = "{new_version}"
+tag = true
+commit = true
+
+[[tool.bumpversion.files]]
+filename = "deploy/manifests/deployment.yaml"
+search = "image: kasa-exporter:v{current_version}"
+replace = "image: kasa-exporter:v{new_version}"
