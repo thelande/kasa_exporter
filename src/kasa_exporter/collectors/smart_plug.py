@@ -1,9 +1,7 @@
-# Copyright 2021-2022,2024 Thomas Helander
-# All rights reserved.
 import asyncio
 
 import kasa.exceptions
-from kasa import SmartPlug
+from kasa import Device, Module
 from prometheus_client.core import GaugeMetricFamily, InfoMetricFamily
 from prometheus_client.registry import Collector
 
@@ -11,33 +9,17 @@ from prometheus_client.registry import Collector
 class KasaSmartPlugCollector(Collector):
     """Prometheus collector for Kasa Smart Plugs with energy monitoring."""
 
-    def __init__(self, address, registry=None):
+    def __init__(self, address: str, registry=None):
         self.address = address
-        self.device = SmartPlug(address)
+        self.device: Device | None = None
 
         if registry:
             registry.register(self)
 
-    def get_device_current(self) -> float:
-        """Returns the current pulled by the device in mA."""
-        if not self.device.has_emeter:
-            return 0.0
-
-        return self.device.emeter_realtime.get("current_ma")
-
-    def get_device_voltage(self) -> float:
-        """Returns the input voltage of the device in mV."""
-        if not self.device.has_emeter:
-            return 0.0
-
-        return self.device.emeter_realtime.get("voltage_mv")
-
-    def get_device_power(self) -> float:
-        """Returns the power consumption of the device in mW."""
-        if not self.device.has_emeter:
-            return 0.0
-
-        return self.device.emeter_realtime.get("power_mw")
+    async def update_device(self):
+        if not self.device:
+            self.device = await Device.connect(host=self.address)
+        await self.device.update()
 
     def collect(self) -> list[GaugeMetricFamily]:
         metrics = []
@@ -45,30 +27,41 @@ class KasaSmartPlugCollector(Collector):
         metrics.append(up)
 
         try:
-            asyncio.run(self.device.update())
-        except kasa.exceptions.SmartDeviceException:
+            asyncio.run(self.update_device())
+        except kasa.exceptions.KasaException:
+            up.add_metric([], 0)
+            return metrics
+
+        if not self.device:
             up.add_metric([], 0)
             return metrics
 
         up.add_metric([], 1)
 
         info = InfoMetricFamily("kasa_meta", "Device information")
-        info.add_metric([], {"alias": self.device.alias})
+        info.add_metric([], {"alias": self.device.alias or ""})
         metrics.append(info)
 
-        current = GaugeMetricFamily(
-            "kasa_device_current", "Current pulled by the device", unit="ma"
-        )
-        voltage = GaugeMetricFamily(
-            "kasa_device_voltage", "Input voltage of the device", unit="mv"
-        )
-        power = GaugeMetricFamily(
-            "kasa_device_power_mw", "Power consumption of the device", unit="mw"
-        )
+        if self.device.has_emeter:
+            energy = self.device.modules[Module.Energy]
+            current = GaugeMetricFamily(
+                "kasa_device_current", "Current pulled by the device", unit="ma"
+            )
+            voltage = GaugeMetricFamily(
+                "kasa_device_voltage", "Input voltage of the device", unit="mv"
+            )
+            power = GaugeMetricFamily(
+                "kasa_device_power_mw", "Power consumption of the device", unit="mw"
+            )
 
-        current.add_metric([], self.get_device_current())
-        voltage.add_metric([], self.get_device_voltage())
-        power.add_metric([], self.get_device_power())
-        metrics.extend([current, voltage, power])
+            if energy.current is not None:
+                current.add_metric([], energy.current * 1000)
+            if energy.voltage is not None:
+                voltage.add_metric([], energy.voltage * 1000)
+
+            if energy.current is not None and energy.voltage is not None:
+                power.add_metric([], energy.current * energy.voltage * 1000)
+
+            metrics.extend([current, voltage, power])
 
         return metrics

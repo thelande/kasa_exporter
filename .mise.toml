@@ -14,6 +14,7 @@ fix = "ruff check --fix kasa_exporter"
 fmt = "ruff format kasa_exporter"
 analyze = "ruff analyze graph"
 build = "uv build"
+dev = "uv run fastapi dev src/kasa_exporter/app.py"
 
 [tasks.bump]
 description = "Bump package version"
