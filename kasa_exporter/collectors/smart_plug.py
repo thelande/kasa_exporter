@@ -1,11 +1,11 @@
 # Copyright 2021-2022,2024 Thomas Helander
 # All rights reserved.
 import asyncio
+
 import kasa.exceptions
 from kasa import SmartPlug
 from prometheus_client.core import GaugeMetricFamily, InfoMetricFamily
 from prometheus_client.registry import Collector
-from typing import List
 
 
 class KasaSmartPlugCollector(Collector):
@@ -39,7 +39,7 @@ class KasaSmartPlugCollector(Collector):
 
         return self.device.emeter_realtime.get("power_mw")
 
-    def collect(self) -> List[GaugeMetricFamily]:
+    def collect(self) -> list[GaugeMetricFamily]:
         metrics = []
         up = GaugeMetricFamily("kasa_up", "Is the device up", labels=["device"])
         metrics.append(up)

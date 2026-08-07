@@ -2,5 +2,4 @@
 # All rights reserved.
 from .smart_plug import KasaSmartPlugCollector
 
-
-__all__ = [KasaSmartPlugCollector]
+__all__ = ["KasaSmartPlugCollector"]

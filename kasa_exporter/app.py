@@ -2,7 +2,8 @@
 # All rights reserved.
 from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse
-from prometheus_client import generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
+from prometheus_client import CONTENT_TYPE_LATEST, CollectorRegistry, generate_latest
+
 from .collectors import KasaSmartPlugCollector
 
 METRICS_PATH = "/metrics"
