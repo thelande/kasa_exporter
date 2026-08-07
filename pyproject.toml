@@ -40,3 +40,8 @@ commit = true
 filename = "deploy/manifests/deployment.yaml"
 search = "image: kasa-exporter:v{current_version}"
 replace = "image: kasa-exporter:v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "docker-bake.hcl"
+search = "default = \"{current_version}\""
+replace = "default = \"{new_version}\""
