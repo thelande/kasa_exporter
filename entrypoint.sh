@@ -1,6 +1,8 @@
 #!/bin/bash
+#
+set -e
 
-OPTS=(kasa_exporter.app:app --host 0.0.0.0 --port 9907)
+OPTS=(kasa_exporter.app:app --host 0.0.0.0 --port 9907 "$@")
 
 set -x
 uvicorn "${OPTS[@]}"

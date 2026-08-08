@@ -1,0 +1,28 @@
+[settings]
+pipx.uvx = true
+
+[tools]
+"pipx:bump-my-version" = "1.5.1"
+pre-commit = "4.6.1"
+python = "3.14.7"
+ruff = "0.16.1"
+uv = "0.12.1"
+
+[tasks]
+lint = "ruff check kasa_exporter"
+fix = "ruff check --fix kasa_exporter"
+fmt = "ruff format kasa_exporter"
+analyze = "ruff analyze graph"
+build = "uv build"
+dev = "uv run fastapi dev src/kasa_exporter/app.py"
+
+[tasks.bump]
+description = "Bump package version"
+usage = '''
+arg "<part>" help="Part of the version to bump" {
+    choices "patch" "minor" "major"
+}
+arg "[opts]" help="Additional options to pass to bump-my-part" var=#true
+'''
+
+run = "bump-my-version bump ${usage_part?} ${usage_opts}"

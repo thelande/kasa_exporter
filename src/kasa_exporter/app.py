@@ -1,8 +1,8 @@
-# Copyright 2021-2022,2024 Thomas Helander
-# All rights reserved.
 from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse
-from prometheus_client import generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
+from prometheus_client import CONTENT_TYPE_LATEST, CollectorRegistry, generate_latest
+from pydantic import IPvAnyAddress
+
 from .collectors import KasaSmartPlugCollector
 
 METRICS_PATH = "/metrics"
@@ -26,9 +26,9 @@ async def index():
 
 
 @app.get("/metrics")
-def metrics(target: str) -> Response:
+def metrics(target: IPvAnyAddress) -> Response:
     registry = CollectorRegistry()
-    KasaSmartPlugCollector(target, registry)
+    KasaSmartPlugCollector(str(target), registry)
     return Response(content=generate_latest(registry), media_type=CONTENT_TYPE_LATEST)
 
 
