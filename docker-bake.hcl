@@ -4,7 +4,7 @@ SOURCE = "https://github.com/thelande/kasa_exporter"
 variable "GIT_SHA" {}
 
 variable "VERSION" {
-  default = "0.3.0"
+  default = "0.3.1"
 }
 
 group "default" {

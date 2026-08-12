@@ -1,6 +1,6 @@
 [project]
 name = "kasa-exporter"
-version = "0.3.0"
+version = "0.3.1"
 description = ""
 authors = [{ name = "Tom Helander", email = "thomas.helander@gmail.com" }]
 dependencies = [
@@ -28,7 +28,7 @@ requires = ["uv_build>=0.12.3,<0.13"]
 build-backend = "uv_build"
 
 [tool.bumpversion]
-current_version = "0.3.0"
+current_version = "0.3.1"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
