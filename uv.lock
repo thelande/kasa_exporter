@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14"
 
 [[package]]
@@ -1224,7 +1224,7 @@ wheels = [
 
 [[package]]
 name = "python-kasa"
-version = "0.11.0.1"
+version = "0.12.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -1233,9 +1233,9 @@ dependencies = [
     { name = "mashumaro" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/49/30b3526b58892f8407f164aa9b891db3ab6dbebd86f151124e557a7279f6/python_kasa-0.11.0.1.tar.gz", hash = "sha256:378e6bb923690cda5cf1e9d33d4d4094c21a6e337614fd29a0f2d4af40da23e4", size = 526277, upload-time = "2026-10-04T18:41:39.431Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5a/d6/e3ab366aa362ff4a12d5166ed648667cfe394dc2c1b450eab41bda310be8/python_kasa-0.12.0.tar.gz", hash = "sha256:92b0cd9eafc89a07a31e5652dd494a2eed0477fc1b0e517ba1b1a045d2cf3643", size = 537631, upload-time = "2026-10-25T19:37:08.479Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c5/f1/0d1b2b6617263ba925675b604454fc0686898ac856487827067a1331aa8d/python_kasa-0.11.0.1-py3-none-any.whl", hash = "sha256:58e0ad5c5b71e60c2b58f3a5a17bd9b9427b8947ec72aecb96edaaa6a78d84ad", size = 276609, upload-time = "2026-10-04T18:41:38.098Z" },
+    { url = "https://files.pythonhosted.org/packages/db/65/2045880563c419c0577da4311422218ca11858a891cf89b81c7079fc2e50/python_kasa-0.12.0-py3-none-any.whl", hash = "sha256:e18adb340f359750bc5e798aa1856cdc1a28bc9307d510ad6556998545f40bbd", size = 277243, upload-time = "2026-10-25T19:37:06.57Z" },
 ]
 
 [package.optional-dependencies]
